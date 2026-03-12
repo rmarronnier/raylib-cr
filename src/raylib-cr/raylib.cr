@@ -15,6 +15,10 @@ lib Raylib
 
   alias Camera = Camera3D
   alias TextureCubemap = Texture2D
+  alias LoadFileDataCallback = Proc(LibC::Char*, LibC::Int*, LibC::UChar*)
+  alias SaveFileDataCallback = Proc(LibC::Char*, Void*, LibC::Int, Bool)
+  alias LoadFileTextCallback = Proc(LibC::Char*, LibC::Char*)
+  alias SaveFileTextCallback = Proc(LibC::Char*, LibC::Char*, Bool)
 
   @[Flags]
   enum ConfigFlags
@@ -828,16 +832,20 @@ lib Raylib
   fun set_config_flags = SetConfigFlags(flags : LibC::UInt)
   fun trace_log = TraceLog(log_level : LibC::Int, text : LibC::Char*, ...)
   fun set_trace_log_level = SetTraceLogLevel(log_level : LibC::Int)
+  fun set_load_file_data_callback = SetLoadFileDataCallback(callback : LoadFileDataCallback)
+  fun set_save_file_data_callback = SetSaveFileDataCallback(callback : SaveFileDataCallback)
+  fun set_load_file_text_callback = SetLoadFileTextCallback(callback : LoadFileTextCallback)
+  fun set_save_file_text_callback = SetSaveFileTextCallback(callback : SaveFileTextCallback)
 
   fun mem_alloc = MemAlloc(size : LibC::UInt) : Void*
   fun mem_realloc = MemRealloc(ptr : Void*, size : LibC::UInt) : Void*
   fun mem_free = MemFree(ptr : Void*)
 
   fun open_url = OpenURL(url : LibC::Char*)
-  fun load_file_data = LoadFileData(file_name : LibC::Char*, data_size : LibC::UInt*) : LibC::UChar*
+  fun load_file_data = LoadFileData(file_name : LibC::Char*, data_size : LibC::Int*) : LibC::UChar*
   fun unload_file_data = UnloadFileData(data : LibC::UChar*)
-  fun save_file_data? = SaveFileData(file_name : LibC::Char*, data : Void*, data_size : LibC::UInt) : Bool
-  fun export_data_as_code = ExportDataAsCode(data : LibC::Char*, data_size : LibC::UInt, filename : LibC::Char*) : Bool
+  fun save_file_data? = SaveFileData(file_name : LibC::Char*, data : Void*, data_size : LibC::Int) : Bool
+  fun export_data_as_code = ExportDataAsCode(data : LibC::UChar*, data_size : LibC::Int, filename : LibC::Char*) : Bool
   fun load_file_text = LoadFileText(file_name : LibC::Char*) : LibC::Char*
   fun unload_file_text = UnloadFileText(text : LibC::Char*)
   fun save_file_text? = SaveFileText(file_name : LibC::Char*, text : LibC::Char*) : Bool
