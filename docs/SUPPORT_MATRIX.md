@@ -20,9 +20,9 @@
 
 | Platform | Core shard specs | Core smoke | Optional modules smoke | Example builds | Native setup path |
 | --- | --- | --- | --- | --- | --- |
-| macOS | Yes | Yes | Yes | Yes | Homebrew `raylib` + local `raygui` helper |
-| Ubuntu Linux | Yes | Yes | Yes | Yes | repo-local build helper |
-| Windows MSVC | Yes | Yes | Yes | Yes | repo-local build helper |
+| macOS | Yes | Compile smoke in CI, runtime manual | Yes | Yes | Homebrew `raylib` + local `raygui` helper |
+| Ubuntu Linux | Yes | Runtime smoke in CI | Yes | Yes | repo-local build helper |
+| Windows MSVC | Yes | Compile smoke in CI, runtime manual | Yes | Yes | repo-local build helper |
 | Windows MSYS2 | Local only | Local only | Local only | Local only | best-effort script |
 
 ## What each validation tier means
@@ -30,7 +30,7 @@
 - `Core shard specs`
   Crystal specs that validate the shard itself.
 - `Core smoke`
-  Hidden-window runtime smoke for the core Raylib binding.
+  Hidden-window smoke for the core Raylib binding. On hosted macOS and Windows runners this is compile-only; runtime window validation remains manual.
 - `Optional modules smoke`
   Smoke coverage for `raygui`, `rlgl`, `audio`, and `lights`.
 - `Example builds`

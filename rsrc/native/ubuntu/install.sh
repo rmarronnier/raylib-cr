@@ -34,7 +34,7 @@ cmake -S "$BUILD_DIR/raylib" -B "$BUILD_DIR/raylib/build" \
 cmake --build "$BUILD_DIR/raylib/build" --parallel
 cmake --install "$BUILD_DIR/raylib/build"
 
-cp "$PREFIX/lib/libraylib.so" "$LIB_DIR/libraylib.so"
+cp "$PREFIX/lib"/libraylib.so* "$LIB_DIR/"
 RAYLIB_PREFIX="$PREFIX" RAYLIB_CR_LIB_DIR="$LIB_DIR" sh "$ROOT/rsrc/native/shared/build-raygui-unix.sh"
 
 rm -rf "$BUILD_DIR"

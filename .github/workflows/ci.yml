@@ -68,8 +68,8 @@ jobs:
       - name: Run module smoke
         run: crystal run rsrc/smoke/modules.cr
 
-      - name: Run hidden-window core smoke
-        run: crystal run rsrc/smoke/core.cr
+      - name: Build hidden-window core smoke
+        run: crystal build rsrc/smoke/core.cr -o /tmp/raylib-cr-core-smoke
 
   windows:
     name: Windows Smoke
@@ -118,6 +118,6 @@ jobs:
         shell: powershell
         run: crystal run rsrc/smoke/modules.cr
 
-      - name: Run hidden-window core smoke
+      - name: Build hidden-window core smoke
         shell: powershell
-        run: crystal run rsrc/smoke/core.cr
+        run: crystal build rsrc/smoke/core.cr -o tmp\raylib-cr-core-smoke.exe

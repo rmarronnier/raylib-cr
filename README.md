@@ -14,11 +14,11 @@ The shard intentionally stays close to raw Raylib. `raymath` bindings are includ
 ### Supported
 
 - macOS
-  CI covers specs, core smoke, optional module smoke, and example builds.
+  CI covers specs, compile smoke, optional module smoke, and example builds.
 - Ubuntu Linux
-  CI covers specs, core smoke, optional module smoke, and example builds.
+  CI covers specs, runtime core smoke, optional module smoke, and example builds.
 - Windows MSVC
-  CI covers specs, core smoke, optional module smoke, and example builds.
+  CI covers specs, compile smoke, optional module smoke, and example builds.
 
 ### Best effort
 
