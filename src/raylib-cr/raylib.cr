@@ -760,6 +760,7 @@ lib Raylib
   fun get_monitor_name = GetMonitorName(monitor : LibC::Int) : Char*
   fun set_clipboard_text = SetClipboardText(text : LibC::Char*)
   fun get_clipboard_text = GetClipboardText : Char*
+  fun get_clipboard_image = GetClipboardImage : Image
   fun enable_event_waiting = EnableEventWaiting
   fun disable_event_waiting = DisableEventWaiting
 
@@ -797,6 +798,7 @@ lib Raylib
   fun load_shader = LoadShader(vs_file_name : LibC::Char*, fs_file_name : LibC::Char*) : Shader
   fun load_shader_from_memory = LoadShaderFromMemory(vs_code : LibC::Char*, fs_code : LibC::Char*) : Shader
   fun shader_ready? = IsShaderReady(shader : Shader) : Bool
+  fun shader_valid? = IsShaderValid(shader : Shader) : Bool
   fun get_shader_location = GetShaderLocation(shader : Shader, uniform_name : LibC::Char*) : LibC::Int
   fun get_shader_location_attrib = GetShaderLocationAttrib(shader : Shader, attrib_name : LibC::Char*) : LibC::Int
   fun set_shader_value = SetShaderValue(shader : Shader, loc_index : LibC::Int, value : Void*, uniform_type : LibC::Int)
@@ -805,6 +807,8 @@ lib Raylib
   fun set_shader_value_texture = SetShaderValueTexture(shader : Shader, loc_index : LibC::Int, texture : Texture2D)
   fun unload_shader = UnloadShader(shader : Shader)
   fun get_mouse_ray = GetMouseRay(mouse_position : Vector2, camera : Camera) : Ray
+  fun get_screen_to_world_ray = GetScreenToWorldRay(position : Vector2, camera : Camera) : Ray
+  fun get_screen_to_world_ray_ex = GetScreenToWorldRayEx(position : Vector2, camera : Camera, width : LibC::Int, height : LibC::Int) : Ray
   fun get_camera_matrix = GetCameraMatrix(camera : Camera) : Matrix
   fun get_camera_matrix_2d = GetCameraMatrix2D(camera : Camera2D) : Matrix
   fun get_world_to_screen = GetWorldToScreen(position : Vector3, camera : Camera) : Vector2
@@ -829,7 +833,7 @@ lib Raylib
   fun mem_realloc = MemRealloc(ptr : Void*, size : LibC::UInt) : Void*
   fun mem_free = MemFree(ptr : Void*)
 
-  fun open_url = OpenUrl(url : LibC::Char*)
+  fun open_url = OpenURL(url : LibC::Char*)
   fun load_file_data = LoadFileData(file_name : LibC::Char*, data_size : LibC::UInt*) : LibC::UChar*
   fun unload_file_data = UnloadFileData(data : LibC::UChar*)
   fun save_file_data? = SaveFileData(file_name : LibC::Char*, data : Void*, data_size : LibC::UInt) : Bool
@@ -838,6 +842,7 @@ lib Raylib
   fun unload_file_text = UnloadFileText(text : LibC::Char*)
   fun save_file_text? = SaveFileText(file_name : LibC::Char*, text : LibC::Char*) : Bool
   fun file_exists? = FileExists(file_name : LibC::Char*) : Bool
+  fun file_name_valid? = IsFileNameValid(file_name : LibC::Char*) : Bool
   fun directory_exists? = DirectoryExists(dir_path : LibC::Char*) : Bool
   fun file_extension? = IsFileExtension(file_name : LibC::Char*, ext : LibC::Char*) : Bool
   fun get_file_length = GetFileLength(filename : LibC::Char*, ext : LibC::Char*) : LibC::Int
@@ -848,6 +853,7 @@ lib Raylib
   fun get_prev_directory_path = GetPrevDirectoryPath(dir_path : LibC::Char*) : LibC::Char*
   fun get_working_directory = GetWorkingDirectory : LibC::Char*
   fun get_application_directory = GetApplicationDirectory : LibC::Char*
+  fun make_directory = MakeDirectory(dir_path : LibC::Char*) : LibC::Int
   fun change_directory? = ChangeDirectory(dir : LibC::Char*) : Bool
   fun path_file? = IsPathFile(path : LibC::Char*) : Bool
   fun load_directory_files = LoadDirectoryFiles(dir_path : LibC::Char*) : FilePathList
@@ -859,6 +865,7 @@ lib Raylib
   fun get_file_mod_time = GetFileModTime(file_name : LibC::Char*) : LibC::Long
   fun compress_data = CompressData(data : LibC::UChar*, data_length : LibC::Int, comp_data_length : LibC::Int*) : LibC::UChar*
   fun decompress_data = DecompressData(comp_data : LibC::UChar*, comp_data_length : LibC::Int, data_length : LibC::Int*) : LibC::UChar*
+  fun compute_crc32 = ComputeCRC32(data : LibC::UChar*, data_size : LibC::Int) : LibC::UInt
   fun encode_data_base64 = EncodeDataBase64(data : LibC::UChar*, data_length : LibC::Int, output_length : LibC::Int*) : LibC::Char*
   fun decode_data_base64 = DecodeDataBase64(data : LibC::UChar*, output_length : LibC::Int*) : LibC::UChar*
 
@@ -869,6 +876,7 @@ lib Raylib
   fun set_automation_event_base_frame = SetAutomationEventBaseFrame(frame : LibC::Int)
   fun start_automation_event_recording = StartAutomationEventRecording
   fun stop_automation_event_recording = StopAutomationEventRecording
+  fun play_automation_event = PlayAutomationEvent(event : AutomationEvent)
   fun play_automation_event_recording = PlayAutomationEventRecording(event : AutomationEvent)
 
   fun key_pressed? = IsKeyPressed(key : LibC::Int) : Bool
@@ -889,6 +897,7 @@ lib Raylib
   fun get_gamepad_axis_count = GetGamepadAxisCount(gamepad : LibC::Int) : LibC::Int
   fun get_gamepad_axis_movement = GetGamepadAxisMovement(gamepad : LibC::Int, axis : LibC::Int) : LibC::Float
   fun set_gamepad_mappings = SetGamepadMappings(mappings : LibC::Char*) : LibC::Int
+  fun set_gamepad_vibration = SetGamepadVibration(gamepad : LibC::Int, left_motor : LibC::Float, right_motor : LibC::Float, duration : LibC::Float)
   fun mouse_button_pressed? = IsMouseButtonPressed(button : LibC::Int) : Bool
   fun mouse_button_down? = IsMouseButtonDown(button : LibC::Int) : Bool
   fun mouse_button_released? = IsMouseButtonReleased(button : LibC::Int) : Bool
@@ -920,6 +929,8 @@ lib Raylib
   fun update_camera_pro = UpdateCameraPro(camera : Camera*, movement : Vector3, rotation : Vector3, zoom : LibC::Float)
 
   fun set_shapes_texture = SetShapesTexture(texture : Texture2D, source : Rectangle)
+  fun get_shapes_texture = GetShapesTexture : Texture2D
+  fun get_shapes_texture_rectangle = GetShapesTextureRectangle : Rectangle
   fun draw_pixel = DrawPixel(pos_x : LibC::Int, pos_y : LibC::Int, color : Color)
   fun draw_pixel_v = DrawPixelV(position : Vector2, color : Color)
   fun draw_line = DrawLine(start_pos_x : LibC::Int, start_pos_y : LibC::Int, end_pos_x : LibC::Int, end_pos_y : LibC::Int, color : Color)
@@ -952,6 +963,7 @@ lib Raylib
   fun draw_circle_gradient = DrawCircleGradient(center_x : LibC::Int, center_y : LibC::Int, radius : LibC::Float, color1 : Color, color2 : Color)
   fun draw_circle_v = DrawCircleV(center : Vector2, radius : LibC::Float, color : Color)
   fun draw_circle_lines = DrawCircleLines(center_x : LibC::Int, center_y : LibC::Int, radius : LibC::Float, color : Color)
+  fun draw_circle_lines_v = DrawCircleLinesV(center : Vector2, radius : LibC::Float, color : Color)
   fun draw_ellipse = DrawEllipse(center_x : LibC::Int, center_y : LibC::Int, radius_h : LibC::Float, radius_v : LibC::Float, color : Color)
   fun draw_ellipse_lines = DrawEllipseLines(center_x : LibC::Int, center_y : LibC::Int, radius_h : LibC::Float, radius_v : LibC::Float, color : Color)
   fun draw_ring = DrawRing(center : Vector2, inner_radius : LibC::Float, outer_radius : LibC::Float, start_angle : LibC::Float, end_angle : LibC::Float, segments : LibC::Int, color : Color)
@@ -966,7 +978,10 @@ lib Raylib
   fun draw_rectangle_lines = DrawRectangleLines(pos_x : LibC::Int, pos_y : LibC::Int, width : LibC::Int, height : LibC::Int, color : Color)
   fun draw_rectangle_lines_ex = DrawRectangleLinesEx(rec : Rectangle, line_thick : LibC::Float, color : Color)
   fun draw_rectangle_rounded = DrawRectangleRounded(rec : Rectangle, roundness : LibC::Float, segments : LibC::Int, color : Color)
-  fun draw_rectangle_rounded_lines = DrawRectangleRoundedLines(rec : Rectangle, roundness : LibC::Float, segments : LibC::Int, line_thick : LibC::Float, color : Color)
+  # Preserve the long-standing 5-argument Crystal API while exposing the native 5.5 functions.
+  fun draw_rectangle_rounded_lines = DrawRectangleRoundedLinesEx(rec : Rectangle, roundness : LibC::Float, segments : LibC::Int, line_thick : LibC::Float, color : Color)
+  fun draw_rectangle_rounded_lines_basic = DrawRectangleRoundedLines(rec : Rectangle, roundness : LibC::Float, segments : LibC::Int, color : Color)
+  fun draw_rectangle_rounded_lines_ex = DrawRectangleRoundedLinesEx(rec : Rectangle, roundness : LibC::Float, segments : LibC::Int, line_thick : LibC::Float, color : Color)
   fun draw_triangle = DrawTriangle(v1 : Vector2, v2 : Vector2, v3 : Vector2, color : Color)
   fun draw_triangle_lines = DrawTriangleLines(v1 : Vector2, v2 : Vector2, v3 : Vector2, color : Color)
   fun draw_triangle_fan = DrawTriangleFan(points : Vector2*, point_count : LibC::Int, color : Color)
@@ -977,6 +992,7 @@ lib Raylib
   fun check_collision_recs? = CheckCollisionRecs(rec1 : Rectangle, rec2 : Rectangle) : Bool
   fun check_collision_circles? = CheckCollisionCircles(center1 : Vector2, radius1 : LibC::Float, center2 : Vector2, radius2 : LibC::Float) : Bool
   fun check_collision_circle_rec? = CheckCollisionCircleRec(center : Vector2, radius : LibC::Float, rec : Rectangle) : Bool
+  fun check_collision_circle_line? = CheckCollisionCircleLine(center : Vector2, radius : LibC::Float, p1 : Vector2, p2 : Vector2) : Bool
   fun check_collision_point_rec? = CheckCollisionPointRec(point : Vector2, rec : Rectangle) : Bool
   fun check_collision_point_circle? = CheckCollisionPointCircle(point : Vector2, center : Vector2, radius : LibC::Float) : Bool
   fun check_collision_point_triangle? = CheckCollisionPointTriangle(point : Vector2, p1 : Vector2, p2 : Vector2, p3 : Vector2) : Bool
@@ -988,10 +1004,12 @@ lib Raylib
   fun load_image_raw = LoadImageRaw(file_name : LibC::Char*, width : LibC::Int, height : LibC::Int, format : LibC::Int, header_size : LibC::Int) : Image
   fun load_image_svg = LoadImageSvg(file_name_or_string : LibC::Char*, width : LibC::Int, height : LibC::Int) : Image
   fun load_image_anim = LoadImageAnim(file_name : LibC::Char*, frames : LibC::Int*) : Image
+  fun load_image_anim_from_memory = LoadImageAnimFromMemory(file_type : LibC::Char*, file_data : LibC::UChar*, data_size : LibC::Int, frames : LibC::Int*) : Image
   fun load_image_from_memory = LoadImageFromMemory(file_type : LibC::Char*, file_data : LibC::UChar*, data_size : LibC::Int) : Image
   fun load_image_from_texture = LoadImageFromTexture(texture : Texture2D) : Image
   fun load_image_from_screen = LoadImageFromScreen : Image
   fun image_ready? = IsImageReady(image : Image) : Bool
+  fun image_valid? = IsImageValid(image : Image) : Bool
   fun unload_image = UnloadImage(image : Image)
   fun export_image? = ExportImage(image : Image, file_name : LibC::Char*) : Bool
   fun export_image_to_memory = ExportImageToMemory(image : Image, filetype : LibC::Char*, filesize : LibC::UChar*, datasize : LibC::Int) : LibC::UChar*
@@ -1009,6 +1027,7 @@ lib Raylib
 
   fun image_copy = ImageCopy(image : Image) : Image
   fun image_from_image = ImageFromImage(image : Image, rec : Rectangle) : Image
+  fun image_from_channel = ImageFromChannel(image : Image, selected_channel : LibC::Int) : Image
   fun image_text = ImageText(text : LibC::Char*, font_size : LibC::Int, color : Color) : Image
   fun image_text_ex = ImageTextEx(font : Font, text : LibC::Char*, font_size : LibC::Float, spacing : LibC::Float, tint : Color) : Image
   fun image_format = ImageFormat(image : Image*, new_format : LibC::Int)
@@ -1019,6 +1038,7 @@ lib Raylib
   fun image_alpha_mask = ImageAlphaMask(image : Image*, alpha_mask : Image)
   fun image_alpha_premultiply = ImageAlphaPremultiply(image : Image*)
   fun image_blur_gaussian = ImageBlurGaussian(image : Image*, blur_size : LibC::Int)
+  fun image_kernel_convolution = ImageKernelConvolution(image : Image*, kernel : LibC::Float*, kernel_size : LibC::Int)
   fun image_resize = ImageResize(image : Image*, new_width : LibC::Int, new_height : LibC::Int)
   fun image_resize_nn = ImageResizeNN(image : Image*, new_width : LibC::Int, new_height : LibC::Int)
   fun image_resize_canvas = ImageResizeCanvas(image : Image*, new_width : LibC::Int, new_height : LibC::Int, offset_x : LibC::Int, offset_y : LibC::Int, fill : Color)
@@ -1046,14 +1066,20 @@ lib Raylib
   fun image_draw_pixel_v = ImageDrawPixelV(dst : Image*, position : Vector2, color : Color)
   fun image_draw_line = ImageDrawLine(dst : Image*, start_pos_x : LibC::Int, start_pos_y : LibC::Int, end_pos_x : LibC::Int, end_pos_y : LibC::Int, color : Color)
   fun image_draw_line_v = ImageDrawLineV(dst : Image*, start : Vector2, end : Vector2, color : Color)
+  fun image_draw_line_ex = ImageDrawLineEx(dst : Image*, start : Vector2, end : Vector2, thick : LibC::Int, color : Color)
   fun image_draw_circle = ImageDrawCircle(dst : Image*, center_x : LibC::Int, center_y : LibC::Int, radius : LibC::Int, color : Color)
   fun image_draw_circle_v = ImageDrawCircleV(dst : Image*, center : Vector2, radius : LibC::Int, color : Color)
-  fun image_draw_circle_lines = ImageDrawCircle(dst : Image*, center_X : LibC::Int, center_y : LibC::Int, radius : LibC::Int, color : Color)
-  fun image_draw_circle_lines_v = ImageDrawCircleV(dst : Image*, center : Vector2, radius : LibC::Int, color : Color)
+  fun image_draw_circle_lines = ImageDrawCircleLines(dst : Image*, center_x : LibC::Int, center_y : LibC::Int, radius : LibC::Int, color : Color)
+  fun image_draw_circle_lines_v = ImageDrawCircleLinesV(dst : Image*, center : Vector2, radius : LibC::Int, color : Color)
   fun image_draw_rectangle = ImageDrawRectangle(dst : Image*, pos_x : LibC::Int, pos_y : LibC::Int, width : LibC::Int, height : LibC::Int, color : Color)
   fun image_draw_rectangle_v = ImageDrawRectangleV(dst : Image*, position : Vector2, size : Vector2, color : Color)
   fun image_draw_rectangle_rec = ImageDrawRectangleRec(dst : Image*, rec : Rectangle, color : Color)
   fun image_draw_rectangle_lines = ImageDrawRectangleLines(dst : Image*, rec : Rectangle, thick : LibC::Int, color : Color)
+  fun image_draw_triangle = ImageDrawTriangle(dst : Image*, v1 : Vector2, v2 : Vector2, v3 : Vector2, color : Color)
+  fun image_draw_triangle_ex = ImageDrawTriangleEx(dst : Image*, v1 : Vector2, v2 : Vector2, v3 : Vector2, c1 : Color, c2 : Color, c3 : Color)
+  fun image_draw_triangle_lines = ImageDrawTriangleLines(dst : Image*, v1 : Vector2, v2 : Vector2, v3 : Vector2, color : Color)
+  fun image_draw_triangle_fan = ImageDrawTriangleFan(dst : Image*, points : Vector2*, point_count : LibC::Int, color : Color)
+  fun image_draw_triangle_strip = ImageDrawTriangleStrip(dst : Image*, points : Vector2*, point_count : LibC::Int, color : Color)
   fun image_draw = ImageDraw(dst : Image*, src : Image, src_rec : Rectangle, dst_rec : Rectangle, tint : Color)
   fun image_draw_text = ImageDrawText(dst : Image*, text : LibC::Char*, pos_x : LibC::Int, pos_y : LibC::Int, font_size : LibC::Int, color : Color)
   fun image_draw_text_ex = ImageDrawTextEx(dst : Image*, font : Font, text : LibC::Char*, position : Vector2, font_size : LibC::Float, spacing : LibC::Float, tint : Color)
@@ -1062,8 +1088,10 @@ lib Raylib
   fun load_texture_cubemap = LoadTextureCubemap(image : Image, layout : LibC::Int) : TextureCubemap
   fun load_render_texture = LoadRenderTexture(width : LibC::Int, height : LibC::Int) : RenderTexture2D
   fun texture_ready? = IsTextureReady(texture : Texture2D) : Bool
+  fun texture_valid? = IsTextureValid(texture : Texture2D) : Bool
   fun unload_texture = UnloadTexture(texture : Texture2D)
   fun render_texture_ready? = IsRenderTextureReady(render_texture : RenderTexture2D) : Bool
+  fun render_texture_valid? = IsRenderTextureValid(render_texture : RenderTexture2D) : Bool
   fun unload_render_texture = UnloadRenderTexture(target : RenderTexture2D)
   fun update_texture = UpdateTexture(texture : Texture2D, pixels : Void*)
   fun update_texture_rec = UpdateTextureRec(texture : Texture2D, rec : Rectangle, pixels : Void*)
@@ -1076,6 +1104,7 @@ lib Raylib
   fun draw_texture_rec = DrawTextureRec(texture : Texture2D, source : Rectangle, position : Vector2, tint : Color)
   fun draw_texture_pro = DrawTexturePro(texture : Texture2D, source : Rectangle, dest : Rectangle, origin : Vector2, rotation : LibC::Float, tint : Color)
   fun draw_texture_n_patch = DrawTextureNPatch(texture : Texture2D, n_patch_info : NPatchInfo, dest : Rectangle, origin : Vector2, rotation : LibC::Float, tint : Color)
+  fun color_equal? = ColorIsEqual(col1 : Color, col2 : Color) : Bool
   fun fade = Fade(color : Color, alpha : LibC::Float) : Color
   fun color_to_int = ColorToInt(color : Color) : LibC::Int
   fun color_normalize = ColorNormalize(color : Color) : Vector4
@@ -1087,12 +1116,14 @@ lib Raylib
   fun color_contrast = ColorContrast(color : Color, contrast : LibC::Float) : Color
   fun color_alpha = ColorAlpha(color : Color, alpha : LibC::Float) : Color
   fun color_alpha_blend = ColorAlphaBlend(dst : Color, src : Color, tint : Color) : Color
+  fun color_lerp = ColorLerp(color1 : Color, color2 : Color, factor : LibC::Float) : Color
   fun get_color = GetColor(hex_value : LibC::UInt) : Color
   fun get_pixel_color = GetPixelColor(src_ptr : Void*, format : LibC::Int) : Color
   fun set_pixel_color = SetPixelColor(dst_ptr : Void*, color : Color, format : LibC::Int)
   fun get_pixel_data_size = GetPixelDataSize(width : LibC::Int, height : LibC::Int, format : LibC::Int) : LibC::Int
   fun get_font_default = GetFontDefault : Font
   fun load_font = LoadFont(file_name : LibC::Char*) : Font
+  fun font_valid? = IsFontValid(font : Font) : Bool
   fun load_font_ex = LoadFontEx(file_name : LibC::Char*, font_size : LibC::Int, codepoints : LibC::Int*, codepoint_count : LibC::Int) : Font
   fun load_font_from_image = LoadFontFromImage(image : Image, key : Color, first_char : LibC::Int) : Font
   fun load_font_from_memory = LoadFontFromMemory(file_type : LibC::Char*, file_data : LibC::UChar*, data_size : LibC::Int, font_size : LibC::Int, codepoints : LibC::Int*, codepoint_count : LibC::Int) : Font
@@ -1139,7 +1170,10 @@ lib Raylib
   fun text_to_upper = TextToUpper(text : LibC::Char*) : LibC::Char*
   fun text_to_lower = TextToLower(text : LibC::Char*) : LibC::Char*
   fun text_to_pascal = TextToPascal(text : LibC::Char*) : LibC::Char*
+  fun text_to_snake = TextToSnake(text : LibC::Char*) : LibC::Char*
+  fun text_to_camel = TextToCamel(text : LibC::Char*) : LibC::Char*
   fun text_to_integer = TextToInteger(text : LibC::Char*) : LibC::Int
+  fun text_to_float = TextToFloat(text : LibC::Char*) : LibC::Float
   fun draw_line_3d = DrawLine3D(start_pos : Vector3, end_pos : Vector3, color : Color)
   fun draw_point_3d = DrawPoint3D(position : Vector3, color : Color)
   fun draw_circle_3d = DrawCircle3D(center : Vector3, radius : LibC::Float, rotation_axis : Vector3, rotation_angle : LibC::Float, color : Color)
@@ -1164,6 +1198,7 @@ lib Raylib
   fun load_model = LoadModel(file_name : LibC::Char*) : Model
   fun load_model_from_mesh = LoadModelFromMesh(mesh : Mesh) : Model
   fun model_ready? = IsModelReady(model : Model) : Bool
+  fun model_valid? = IsModelValid(model : Model) : Bool
   fun unload_model = UnloadModel(model : Model)
   fun unload_model_keep_meshes = UnloadModelKeepMeshes(model : Model)
   fun get_model_bounding_box = GetModelBoundingBox(model : Model) : BoundingBox
@@ -1171,6 +1206,8 @@ lib Raylib
   fun draw_model_ex = DrawModelEx(model : Model, position : Vector3, rotation_axis : Vector3, rotation_angle : LibC::Float, scale : Vector3, tint : Color)
   fun draw_model_wires = DrawModelWires(model : Model, position : Vector3, scale : LibC::Float, tint : Color)
   fun draw_model_wires_ex = DrawModelWiresEx(model : Model, position : Vector3, rotation_axis : Vector3, rotation_angle : LibC::Float, scale : Vector3, tint : Color)
+  fun draw_model_points = DrawModelPoints(model : Model, position : Vector3, scale : LibC::Float, tint : Color)
+  fun draw_model_points_ex = DrawModelPointsEx(model : Model, position : Vector3, rotation_axis : Vector3, rotation_angle : LibC::Float, scale : Vector3, tint : Color)
   fun draw_bounding_box = DrawBoundingBox(box : BoundingBox, color : Color)
   fun draw_billboard = DrawBillboard(camera : Camera, texture : Texture2D, position : Vector3, size : LibC::Float, tint : Color)
   fun draw_billboard_rec = DrawBillboardRec(camera : Camera, texture : Texture2D, source : Rectangle, position : Vector3, size : Vector2, tint : Color)
@@ -1181,6 +1218,7 @@ lib Raylib
   fun draw_mesh = DrawMesh(mesh : Mesh, material : Material, transform : Matrix)
   fun draw_mesh_instanced = DrawMeshInstanced(mesh : Mesh, material : Material, transforms : Matrix*, instances : LibC::Int)
   fun export_mesh? = ExportMesh(mesh : Mesh, file_name : LibC::Char*) : Bool
+  fun export_mesh_as_code? = ExportMeshAsCode(mesh : Mesh, file_name : LibC::Char*) : Bool
   fun get_mesh_bounding_box = GetMeshBoundingBox(mesh : Mesh) : BoundingBox
   fun gen_mesh_tangents = GenMeshTangents(mesh : Mesh*)
   fun gen_mesh_poly = GenMeshPoly(sides : LibC::Int, radius : LibC::Float) : Mesh
@@ -1197,11 +1235,13 @@ lib Raylib
   fun load_materials = LoadMaterials(file_name : LibC::Char*, material_count : LibC::Int*) : Material*
   fun load_material_default = LoadMaterialDefault : Material
   fun material_ready? = IsMaterialReady(material : Material) : Bool
+  fun material_valid? = IsMaterialValid(material : Material) : Bool
   fun unload_material = UnloadMaterial(material : Material)
   fun set_material_texture = SetMaterialTexture(material : Material*, map_type : LibC::Int, texture : Texture2D)
   fun set_model_mesh_material = SetModelMeshMaterial(model : Model*, mesh_id : LibC::Int, material_id : LibC::Int)
   fun load_model_animations = LoadModelAnimations(file_name : LibC::Char*, anim_count : LibC::UInt*) : ModelAnimation*
   fun update_model_animation = UpdateModelAnimation(model : Model, anim : ModelAnimation, frame : LibC::Int)
+  fun update_model_animation_bones = UpdateModelAnimationBones(model : Model, anim : ModelAnimation, frame : LibC::Int)
   fun unload_model_animation = UnloadModelAnimation(anim : ModelAnimation)
   fun unload_model_animations = UnloadModelAnimations(animations : ModelAnimation*, count : LibC::UInt)
   fun model_animation_valid? = IsModelAnimationValid(model : Model, anim : ModelAnimation) : Bool
