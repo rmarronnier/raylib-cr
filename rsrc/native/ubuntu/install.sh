@@ -1,29 +1,48 @@
-# Compile miniaudio helpers
-gcc -c -fPIC rsrc/miniaudiohelpers/miniaudiohelpers.c -o rsrc/miniaudiohelpers/miniaudiohelpers.o
-sudo gcc rsrc/miniaudiohelpers/miniaudiohelpers.o -shared -o /usr/local/lib/libminiaudiohelpers.so -lm
-sudo cp /usr/local/lib/libminiaudiohelpers.so /usr/lib/libminiaudiohelpers.so
-sudo ln -s /usr/lib/libminiaudiohelpers.so /lib/miniaudiohelpers.so
+#!/usr/bin/env sh
 
-# Compile raylib
-git clone --depth 1 --branch 5.0 https://github.com/raysan5/raylib
-mkdir raylib/build
-sudo apt-get install cmake libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
-cmake raylib -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -B raylib/build 
-cmake --build raylib/build
-sudo make install -C raylib/build
-sudo cp /usr/local/lib/libraylib.so.5.0.0 /usr/lib/libraylib.so.500
-sudo ln -s /usr/lib/libraylib.so.500 /lib/raylib.so
+set -eu
 
-# Compile raygui
-git clone --depth 1 --branch 4.0 https://github.com/raysan5/raygui
-mv raygui/src/raygui.h raygui/src/raygui.c
-gcc -c -fPIC raygui/src/raygui.c -o raygui/raygui.o -DRAYGUI_IMPLEMENTATION
-sudo gcc raygui/raygui.o -shared -o /usr/local/lib/libraygui.so -DRAYGUI_IMPLEMENTATION -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
-sudo cp /usr/local/lib/libraygui.so /usr/lib/libraygui.so
-sudo ln -s /usr/lib/libraygui.so /lib/raygui.so
+ROOT="$(CDPATH= cd -- "$(dirname "$0")/../../.." && pwd)"
+PREFIX="${RAYLIB_CR_NATIVE_PREFIX:-$ROOT/.native/ubuntu}"
+LIB_DIR="${RAYLIB_CR_LIB_DIR:-$ROOT/libs}"
+BUILD_DIR="$ROOT/.native/ubuntu-build"
 
-rm -rf raygui
-rm -rf raylib
+sudo apt-get update
+sudo apt-get install -y \
+  build-essential \
+  cmake \
+  git \
+  pkg-config \
+  libasound2-dev \
+  libx11-dev \
+  libxrandr-dev \
+  libxi-dev \
+  libgl1-mesa-dev \
+  libglu1-mesa-dev \
+  libxcursor-dev \
+  libxinerama-dev \
+  xvfb
 
-# Update shared libraries cache, making libraylib.so and libraygui.so available
-sudo ldconfig
+rm -rf "$PREFIX" "$BUILD_DIR"
+mkdir -p "$PREFIX" "$LIB_DIR" "$BUILD_DIR"
+
+git clone --depth 1 --branch 5.5 https://github.com/raysan5/raylib "$BUILD_DIR/raylib"
+cmake -S "$BUILD_DIR/raylib" -B "$BUILD_DIR/raylib/build" \
+  -DBUILD_SHARED_LIBS=ON \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$PREFIX"
+cmake --build "$BUILD_DIR/raylib/build" --parallel
+cmake --install "$BUILD_DIR/raylib/build"
+
+cp "$PREFIX/lib/libraylib.so" "$LIB_DIR/libraylib.so"
+RAYLIB_PREFIX="$PREFIX" RAYLIB_CR_LIB_DIR="$LIB_DIR" sh "$ROOT/rsrc/native/shared/build-raygui-unix.sh"
+
+rm -rf "$BUILD_DIR"
+
+cat <<EOF
+Native libraries installed locally.
+
+Export these before building or running programs that need repo-local native libs:
+  export LIBRARY_PATH="$LIB_DIR:\${LIBRARY_PATH:-}"
+  export LD_LIBRARY_PATH="$LIB_DIR:\${LD_LIBRARY_PATH:-}"
+EOF

@@ -1,5 +1,8 @@
 require "file_utils"
 
+repo_root = File.expand_path("..", File.dirname(__DIR__))
+native_lib_dir = File.join(repo_root, "libs")
+
 FileUtils.cd("examples") do
   puts "BUILDING EXAMPLE FROM #{FileUtils.pwd}"
   begin
@@ -17,10 +20,19 @@ FileUtils.cd("examples") do
       `shards install`
 
       windows = ""
+      extra_link_flags = [] of String
+
+      if Dir.exists?(native_lib_dir)
+        extra_link_flags << "-L#{native_lib_dir}"
+      end
 
       {% if flag?(:windows) %}
         windows = "--link-flags --subsystem:windows"
       {% end %}
+
+      unless extra_link_flags.empty?
+        windows = "--link-flags \"#{extra_link_flags.join(" ")}#{windows.empty? ? "" : " --subsystem:windows"}\""
+      end
 
       output = `crystal build --release -s -p -t -o ../_build/#{path.basename} ./src/#{path.basename}.cr #{windows}`
 
@@ -48,8 +60,12 @@ FileUtils.cd("examples") do
     end
 
     {% if flag?(:windows) %}
-      FileUtils.cp("../rsrc/native/windows/raylib.dll", "_build/raylib.dll")
-      FileUtils.cp("../rsrc/native/windows/raygui.dll", "_build/raygui.dll")
+      if File.exists?(File.join(native_lib_dir, "raylib.dll"))
+        FileUtils.cp(File.join(native_lib_dir, "raylib.dll"), "_build/raylib.dll")
+      end
+      if File.exists?(File.join(native_lib_dir, "raygui.dll"))
+        FileUtils.cp(File.join(native_lib_dir, "raygui.dll"), "_build/raygui.dll")
+      end
     {% end %}
   end
 end

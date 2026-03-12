@@ -5,7 +5,6 @@
 
 
 ### Crystal ###
-/docs/
 /lib/
 /bin/
 /.shards/
@@ -17,6 +16,9 @@
 
 /raylib/
 /raygui/
+/libs/
+/.native/
+callback_sig_test
 
 # Libraries don't need dependency lock
 # Dependencies will be locked in application that uses them

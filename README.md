@@ -1,101 +1,108 @@
 ![logo](logo/raylib-cr_256x256.png)
 
-[![Windows - Build Examples](https://github.com/sol-vin/raylib-cr/actions/workflows/windows-build.yml/badge.svg)](https://github.com/sol-vin/raylib-cr/actions/workflows/windows-build.yml)
-[![Ubuntu - Build Examples](https://github.com/sol-vin/raylib-cr/actions/workflows/ubuntu-build.yml/badge.svg)](https://github.com/sol-vin/raylib-cr/actions/workflows/ubuntu-build.yml)
+[![CI](https://github.com/rmarronnier/raylib-cr/actions/workflows/ci.yml/badge.svg)](https://github.com/rmarronnier/raylib-cr/actions/workflows/ci.yml)
+[![Examples](https://github.com/rmarronnier/raylib-cr/actions/workflows/examples.yml/badge.svg)](https://github.com/rmarronnier/raylib-cr/actions/workflows/examples.yml)
 
 # raylib-cr
 
-Crystal Bindings for `raylib`, a small and easy to use game development library.  
-As for now the bindings only support the raw function calls from raylib itself.
-`raymath` functions are also supported, as are infix operators for vectors,
-matricies, and quaternions.
-# Supported platforms
+Crystal bindings for Raylib `5.5`.
 
-These platforms are supported out of the box and are linked statically
-1. 64-bit Linux
-2. 64-bit Windows
+The shard intentionally stays close to raw Raylib. `raymath` bindings are included, along with optional `raygui`, `rlgl`, `audio`, and `lights` modules.
 
-Weak/Broken support
-1. MacOS
+## Support
 
-Hopefully soon  
- - Raspberry PI
+### Supported
 
-# Installation
+- macOS
+  CI covers specs, core smoke, optional module smoke, and example builds.
+- Ubuntu Linux
+  CI covers specs, core smoke, optional module smoke, and example builds.
+- Windows MSVC
+  CI covers specs, core smoke, optional module smoke, and example builds.
 
-### Linux
-1. Run
+### Best effort
+
+- Windows MSYS2
+  Kept as a supported path for local use, but not currently part of the primary CI matrix.
+
+### Experimental
+
+- Other Linux distributions and platforms not covered above
+
+More detail is in [SUPPORT_MATRIX.md](docs/SUPPORT_MATRIX.md) and [MANUAL_VALIDATION.md](docs/MANUAL_VALIDATION.md).
+
+## Native dependency model
+
+`raylib-cr` binds to the native Raylib library, so you still need Raylib installed on the machine.
+
+`raygui` is separate from Raylib and needs its own native library if you use `require "raylib-cr/raygui"`.
+
+The repo-local helper scripts under `rsrc/native/` build any missing native libraries into `./libs` instead of copying them into global system locations.
+
+## Installation
+
+## macOS
+
+Primary path:
+
+```sh
+brew install crystal pkg-config raylib
+shards install
+```
+
+If you need `raygui` or want to build the bundled examples locally:
+
+```sh
+sh rsrc/native/mac/mac-raylib-install.sh
+export LIBRARY_PATH="$PWD/libs:${LIBRARY_PATH:-}"
+export DYLD_FALLBACK_LIBRARY_PATH="$PWD/libs:${DYLD_FALLBACK_LIBRARY_PATH:-}"
+```
+
+## Ubuntu Linux
+
+If your distro already packages Raylib `5.5`, you can use that directly.
+
+For a deterministic repo-local setup that builds Raylib and `raygui` into `./libs`:
+
 ```sh
 sh rsrc/native/ubuntu/install.sh
+export LIBRARY_PATH="$PWD/libs:${LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$PWD/libs:${LD_LIBRARY_PATH:-}"
 ```
-2. Add `raylib-cr` to your `shard.yml`:
-```yml
-dependencies:
-  raylib-cr:
-    github: sol-vin/raylib-cr
+
+Then:
+
+```sh
+shards install
 ```
-3. Run `shards install`
-4. Get programming!
 
-### Windows MSVC
+## Windows MSVC
 
-1. Follow the instructions at https://github.com/neatorobito/scoop-crystal to add the crystal-preview bucket to scoop
-2. Install crystal with `scoop install crystal`
-3. `powershell ./rsrc/native/windows/install.ps1`
-4. Run in powershell
+Primary path:
+
+1. Install Crystal with Scoop.
+2. Open a Visual Studio developer shell or let the CI-style helper set it up.
+3. Run:
+
 ```powershell
-$env:LIB="${env:LIB};C:\raylib"
-$env:PATH="${env:PATH};C:\raylib"
+powershell -ExecutionPolicy Bypass -File .\rsrc\native\windows\install.ps1
+$env:LIB = "$pwd\libs;$env:LIB"
+$env:PATH = "$pwd\libs;$env:PATH"
+shards install
 ```
 
-OR
+## Windows MSYS2
 
-Run in cmd
-```cmd
-set PATH=%PATH%;C:\raylib
-set LIB=%LIB%;C:\raylib
-```
-5. Add `raylib-cr` to your `shard.yml`:
-```yml
-dependencies:
-  raylib-cr:
-    github: sol-vin/raylib-cr
-```
-6. Run `shards install`
-7. Get programming!
+Best-effort path:
 
-### Windows MSYS2
-
-1. Run
 ```sh
 sh rsrc/native/msys2/install.sh
+export LIBRARY_PATH="$PWD/libs:${LIBRARY_PATH:-}"
+export PATH="$PWD/libs:${PATH:-}"
+shards install
 ```
-2. Add `raylib-cr` to your `shard.yml`:
-```yml
-dependencies:
-  raylib-cr:
-    github: sol-vin/raylib-cr
-```
-3. Run `shards install`
-4. Get programming!
 
-### MacOS
-1. Run
-```
-sudo sh rsrc/native/mac/mac-raylib-install.sh
-```
-2. Add `raylib-cr` to your `shard.yml`:
-```yml
-dependencies:
-  raylib-cr:
-    github: sol-vin/raylib-cr
-```
-3. Run `shards install`
-4. Get programming!
-
-# Usage Example
-
-`main.cr`
+## Usage
 
 ```crystal
 require "raylib-cr"
@@ -106,45 +113,56 @@ Raylib.set_target_fps(60)
 until Raylib.close_window?
   Raylib.begin_drawing
   Raylib.clear_background(Raylib::RAYWHITE)
-  
   Raylib.draw_text("Hello World!", 190, 200, 20, Raylib::BLACK)
   Raylib.end_drawing
 end
 
 Raylib.close_window
 ```
- 1. Add `raylib-cr` to `shard.yml` dependencies.
- 2. `shards install`
- 3. Run in powershell (only needs to be run once per new console window opened)
-```powershell
-$env:LIB="${env:LIB};C:\raylib"
-$env:PATH="${env:PATH};C:\raylib"
-```
- 4. `shards run`
 
-# RayGUI, RLGL, Audio, and Lights
-If you need to extra functionality, RLGL, RAudio and Lights can be included with the following.
+## Optional modules
+
 ```crystal
 require "raylib-cr/raygui"
 require "raylib-cr/rlgl"
 require "raylib-cr/audio"
 require "raylib-cr/lights"
 ```
-# Contributing
 
-1. Fork it (https://github.com/sol-vin/raylib-cr)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+`raygui` requires a native `raygui` library. The helper scripts above build it into `./libs`.
 
-# Owner
+## Validation
+
+Local shard validation:
+
+```sh
+crystal spec --error-trace
+crystal run rsrc/smoke/audio.cr
+crystal run rsrc/smoke/modules.cr
+crystal run rsrc/smoke/core.cr
+```
+
+Build all bundled examples:
+
+```sh
+crystal run rsrc/build-examples/build.cr
+```
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Run the local validation commands above.
+4. Open a pull request.
+
+When changing platform support, also update:
+
+- [SUPPORT_MATRIX.md](docs/SUPPORT_MATRIX.md)
+- [MANUAL_VALIDATION.md](docs/MANUAL_VALIDATION.md)
+- any affected scripts under `rsrc/native/`
+
+## Credits
+
 - [sol-vin](https://github.com/sol-vin)
-
-# Major Contributors
-- [rightbrace](https://github.com/b1tlet) - Raymath & Wrapper
-# Minor Contributors
-- [b1tlet](https://github.com/b1tlet) - Fog Shader
-
-# Inactive Contributors
-- [AregevDev](https://github.com/AregevDev) - creator
+- [rightbrace](https://github.com/b1tlet) for major contributions around `raymath` and wrappers
+- [AregevDev](https://github.com/AregevDev) as original creator

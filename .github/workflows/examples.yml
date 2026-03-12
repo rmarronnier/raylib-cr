@@ -1,0 +1,93 @@
+name: Examples
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ubuntu:
+    name: Ubuntu Examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: oprypin/install-crystal@v1
+
+      - name: Install native dependencies
+        run: sh ./rsrc/native/ubuntu/install.sh
+
+      - name: Configure linker environment
+        run: |
+          echo "LIBRARY_PATH=$GITHUB_WORKSPACE/libs" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/libs" >> $GITHUB_ENV
+
+      - name: Install shards
+        run: shards install
+
+      - name: Build examples
+        run: crystal run rsrc/build-examples/build.cr
+
+  macos:
+    name: macOS Examples
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: oprypin/install-crystal@v1
+
+      - name: Install native dependencies
+        run: sh ./rsrc/native/mac/mac-raylib-install.sh
+
+      - name: Configure linker environment
+        run: |
+          echo "LIBRARY_PATH=$GITHUB_WORKSPACE/libs" >> $GITHUB_ENV
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$GITHUB_WORKSPACE/libs" >> $GITHUB_ENV
+
+      - name: Install shards
+        run: shards install
+
+      - name: Build examples
+        run: crystal run rsrc/build-examples/build.cr
+
+  windows:
+    name: Windows Examples
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+          irm get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
+          echo ("PATH=" + $env:PATH + ";" + $home + "\scoop\shims") >> $env:GITHUB_ENV
+          scoop bucket add crystal-preview https://github.com/neatorobito/scoop-crystal
+          scoop install vs_2022_cpp_build_tools
+          scoop install crystal
+
+      - name: Setup VS Dev Environment
+        uses: seanmiddleditch/gha-setup-vsdevenv@v4
+
+      - name: Install native dependencies
+        shell: powershell
+        run: .\rsrc\native\windows\install.ps1
+
+      - name: Configure linker environment
+        shell: powershell
+        run: |
+          echo ("LIB=" + "$pwd\libs;" + $env:LIB) >> $env:GITHUB_ENV
+          echo ("PATH=" + "$pwd\libs;" + $env:PATH) >> $env:GITHUB_ENV
+
+      - name: Install shards
+        shell: powershell
+        run: shards install
+
+      - name: Build examples
+        shell: powershell
+        run: crystal run rsrc/build-examples/build.cr
